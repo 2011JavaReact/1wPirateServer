@@ -4,43 +4,59 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
 public class App{
 	public static void main(String[] args){
-		readFile();
+		//Start Download
+		Dowloader downloader = new Dowloader();
+		downloader.start();
+		
 		//Ask for user input
-
-		// hardcode the data
-		// data for pirate 1
-		Pirate pirate1 = new Pirate("Hook","Captain");
-		//data for pirate 2
-		Pirate pirate2 = new Pirate("Black Beard", "Quartermaster");
-		ArrayList<Pirate> pirates = new ArrayList<>();
-		pirates.add(pirate1);
-		pirates.add(pirate2);
+		Scanner scanner = new Scanner(System.in);
+		System.out.println("Enter the name of the pirate!");
+		
+		String name = scanner.nextLine();
+		ArrayList<Pirate> pirates = readFile();
 
 		//output all of the pirates
 		showPirates(pirates);
 
 		// Set Role of Pirate
-		if(args[0].equals(pirate1.getName())){
-			pirate1.setRole(args[1]);
-		}else if(args[0].equals(pirate2.getName())){
-			pirate2.setRole(args[1]);
-		}else{
-			System.out.println("Pirate not found Exception");
+		int index = search(pirates, name);
+		if(index == -1) {
+			System.out.println("Pirate not found Exception"); // we could make our own exception
+		}else {
+			System.out.println("What role do you want this pirate to have");
+			pirates.get(index).setRole(scanner.nextLine());
 		}
+			
 		
 		showPirates(pirates);
 
 		//  how we can make this better:
-		//  replace hardcoded data with file input
-		//  methods
-		//  listening for user input during runtime
-		//  menu, or user-friendly-ness
+		// 
+		//   listening for user input during runtimemenu, or user-friendly-ness
 		//  giving them suggestions <--- extra feature
+		scanner.close();
 		
 	}
 	
+	private static int search(ArrayList<Pirate> pirates, String name) {
+		int index = -1;
+//		pirates.forEach((pirate) -> {
+//			
+//		});
+		for(Pirate pirate:pirates) {
+			index++;
+			if(pirate.getName().equals(name)) {
+				return index;
+			}
+		}
+		return -1;
+		
+	}
+
 	private static void showPirates(ArrayList<Pirate> pirates) {
 		for(Pirate pirate: pirates) {
 			System.out.println(pirate);
@@ -48,11 +64,7 @@ public class App{
 	}
 	
 	private static ArrayList<Pirate> readFile(){
-//		try {
-//			methodA();			
-//		}catch(RuntimeException e) {
-//			System.out.println(e.getMessage());
-//		}
+		ArrayList<Pirate> pirates = new ArrayList<>();
 		FileReader fileReader = null;
 		try {
 			fileReader = new FileReader("db.txt");
@@ -61,14 +73,17 @@ public class App{
 		}
 		BufferedReader bufferedReader = new BufferedReader(fileReader);
 		try {
-			System.out.println(bufferedReader.readLine());
+			while(bufferedReader.ready()) {
+				
+				String[] tokens = bufferedReader.readLine().split(",");
+				pirates.add(new Pirate(tokens[0],tokens[1]));
+				
+				
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return pirates;
 	}
 	
-//	private static void methodA() throws RuntimeException{
-//		throw new RuntimeException("Something went wrong");
-//	}
 }
